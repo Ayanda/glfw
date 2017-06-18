@@ -103,8 +103,10 @@ static void matchCallback(void* context,
 {
     int jid;
     char name[256];
+    char guid[33];
     CFIndex i;
-    CFStringRef productKey;
+    CFTypeRef property;
+    uint32_t vendor = 0, product = 0;
     _GLFWjoystick* js;
     CFMutableArrayRef axes, buttons, hats;
 
@@ -118,16 +120,45 @@ static void matchCallback(void* context,
     buttons = CFArrayCreateMutable(NULL, 0, NULL);
     hats    = CFArrayCreateMutable(NULL, 0, NULL);
 
-    productKey = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
-    if (productKey)
+    property = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    if (property)
     {
-        CFStringGetCString(productKey,
+        CFStringGetCString(property,
                            name,
                            sizeof(name),
                            kCFStringEncodingUTF8);
     }
     else
         strncpy(name, "Unknown", sizeof(name));
+
+    property = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
+    if (property)
+        CFNumberGetValue(property, kCFNumberSInt32Type, &vendor);
+
+    property = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
+    if (property)
+        CFNumberGetValue(property, kCFNumberSInt32Type, &product);
+
+    // Generate a joystick GUID that matches the SDL2 one
+    if (vendor && product)
+    {
+        sprintf(guid, "%02x%02x%02x%02x00000000%02x%02x%02x%02x00000000",
+                vendor & 0xff,
+                (vendor >> 8) & 0xff,
+                (vendor >> 16) & 0xff,
+                (vendor >> 24) & 0xff,
+                product & 0xff,
+                (product >> 8) & 0xff,
+                (product >> 16) & 0xff,
+                (product >> 24) & 0xff);
+    }
+    else
+    {
+        sprintf(guid, "05000000%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x00",
+                name[0], name[1], name[2], name[3],
+                name[4], name[5], name[6], name[7],
+                name[8], name[9], name[10]);
+    }
 
     CFArrayRef elements =
         IOHIDDeviceCopyMatchingElements(device, NULL, kIOHIDOptionsTypeNone);
@@ -193,6 +224,7 @@ static void matchCallback(void* context,
     CFRelease(elements);
 
     js = _glfwAllocJoystick(name,
+                            guid,
                             CFArrayGetCount(axes),
                             CFArrayGetCount(buttons),
                             CFArrayGetCount(hats));
@@ -329,7 +361,7 @@ int _glfwPlatformPollJoystick(int jid, int mode)
 {
     _GLFWjoystick* js = _glfw.joysticks + jid;
 
-    if (mode == _GLFW_POLL_AXES)
+    if (mode & _GLFW_POLL_AXES)
     {
         CFIndex i;
 
@@ -355,7 +387,8 @@ int _glfwPlatformPollJoystick(int jid, int mode)
             }
         }
     }
-    else if (mode == _GLFW_POLL_BUTTONS)
+
+    if (mode & _GLFW_POLL_BUTTONS)
     {
         CFIndex i;
 

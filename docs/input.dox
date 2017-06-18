@@ -653,6 +653,104 @@ called by joystick functions.  The function will then return whatever it
 returns for a disconnected joystick.
 
 
+@subsection joystick_gamepad Gamepad input
+
+The joystick functions provide unlabeled axes, buttons and hats, with no
+indication of where they are located on the device.  Their order may also vary
+between platforms even with the same device.
+
+To solve this problem the SDL2 community crowdsourced the
+[SDL_GameControllerDB](https://github.com/gabomdq/SDL_GameControllerDB) project,
+a database of mappings from many different devices to an abstract Xbox
+360 like gamepad.
+
+Gamepad mappings can be added with @ref glfwParseGamepadMappings.  The function
+supports everything from single lines up to the entire unmodified contents of
+the `gamecontrollerdb.txt` file.
+
+@code
+const char* mappings = load_file_contents("gamecontrollerdb.txt");
+
+glfwParseGamepadMappings(mappings);
+@endcode
+
+Gamepad mappings will be assigned to joysticks automatically any time a new
+mapping is added or joystick is connected.
+
+You can check whether a joystick is both present and has a gamepad mapping with
+@ref glfwJoystickIsGamepad.
+
+@code
+if (glfwJoystickIsGamepad(jid))
+{
+    add_gamepad(jid);
+}
+else
+{
+    add_generic_joystick(jid);
+}
+@endcode
+
+To fetch the gamepad state, call @ref glfwGetGamepadState.
+
+@code
+GLFWgamepadstate state;
+
+if (glfwGetGamepadState(jid, &state))
+{
+    if (state.buttons[GLFW_GAMEPAD_BUTTON_A])
+    {
+        input_jump();
+    }
+
+    input_speed(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
+}
+@endcode
+
+The @ref GLFWgamepadstate struct has two arrays; one for button states and one
+for axis states.  The values for each button and axis are the same as for the
+@ref glfwGetJoystickButtons and @ref glfwGetJoystickAxes functions, i.e.
+`GLFW_PRESS` or `GLFW_RELEASE` for buttons and -1.0 to 1.0 inclusive for axes.
+
+The sizes of the arrays and the positions within each array are fixed.  Below
+are the array indices for the buttons in @ref GLFWgamepadstate.buttons.
+
+Name                               | Index
+---------------------------------- | -----
+`GLFW_GAMEPAD_BUTTON_A`            | 0
+`GLFW_GAMEPAD_BUTTON_B`            | 1
+`GLFW_GAMEPAD_BUTTON_X`            | 2
+`GLFW_GAMEPAD_BUTTON_Y`            | 3
+`GLFW_GAMEPAD_BUTTON_LEFT_BUMPER`  | 4
+`GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER` | 5
+`GLFW_GAMEPAD_BUTTON_BACK`         | 6
+`GLFW_GAMEPAD_BUTTON_START`        | 7
+`GLFW_GAMEPAD_BUTTON_LEFT_THUMB`   | 8
+`GLFW_GAMEPAD_BUTTON_RIGHT_THUMB`  | 9
+`GLFW_GAMEPAD_BUTTON_DPAD_UP`      | 10
+`GLFW_GAMEPAD_BUTTON_DPAD_RIGHT`   | 11
+`GLFW_GAMEPAD_BUTTON_DPAD_DOWN`    | 12
+`GLFW_GAMEPAD_BUTTON_DPAD_LEFT`    | 13
+
+For those who prefer, there are also the `GLFW_GAMEPAD_BUTTON_CROSS`,
+`GLFW_GAMEPAD_BUTTON_CIRCLE`, `GLFW_GAMEPAD_BUTTON_SQUARE` and
+`GLFW_GAMEPAD_BUTTON_TRIANGLE` aliases for the A, B, X and Y button indices.
+
+These are the array indices for the analog axes.
+
+Name                              | Index
+--------------------------------- | -----
+`GLFW_GAMEPAD_AXIS_LEFT_X`        | 0
+`GLFW_GAMEPAD_AXIS_LEFT_Y`        | 1
+`GLFW_GAMEPAD_AXIS_RIGHT_X`       | 2
+`GLFW_GAMEPAD_AXIS_RIGHT_Y`       | 3
+`GLFW_GAMEPAD_AXIS_LEFT_TRIGGER`  | 4
+`GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER` | 5
+
+There are also the `GLFW_GAMEPAD_BUTTON_COUNT` and `GLFW_GAMEPAD_AXIS_COUNT`
+macros.
+
+
 @section time Time input
 
 GLFW provides high-resolution time input, in seconds, with @ref glfwGetTime.

@@ -13,6 +13,15 @@ human-readable description with @ref glfwGetError.
 @see @ref error_handling
 
 
+@subsection news_33_gamepad SDL_GameControllerDB support and gamepad input
+
+GLFW now supports remapping of gamepads and controllers to a 360-like controller
+layout with @ref glfwParseGamepadMappings, @ref glfwJoystickIsGamepad and @ref
+glfwGetGamepadState and @ref GLFWgamepadstate and @ref gamepad.
+
+@sa @ref joystick_gamepad
+
+
 @subsection news_33_attention User attention request
 
 GLFW now supports requesting user attention to a specific window (on macOS to

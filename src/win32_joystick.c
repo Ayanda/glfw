@@ -339,6 +339,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
     IDirectInputDevice8* device;
     _GLFWobjenumWin32 data;
     _GLFWjoystick* js;
+    char guid[33];
     char name[256];
 
     for (jid = 0;  jid <= GLFW_JOYSTICK_LAST;  jid++)
@@ -434,7 +435,16 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
         return DIENUM_STOP;
     }
 
+    // Generate a joystick GUID that matches the SDL2 one
+    sprintf(guid, "%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
+            di->guidProduct.Data1, di->guidProduct.Data2, di->guidProduct.Data3,
+            di->guidProduct.Data4[0], di->guidProduct.Data4[1],
+            di->guidProduct.Data4[2], di->guidProduct.Data4[3],
+            di->guidProduct.Data4[4], di->guidProduct.Data4[5],
+            di->guidProduct.Data4[6], di->guidProduct.Data4[7]);
+
     js = _glfwAllocJoystick(name,
+                            guid,
                             data.axisCount + data.sliderCount,
                             data.buttonCount,
                             data.povCount);
@@ -503,6 +513,7 @@ void _glfwDetectJoystickConnectionWin32(void)
         for (index = 0;  index < XUSER_MAX_COUNT;  index++)
         {
             int jid;
+            char guid[33];
             XINPUT_CAPABILITIES xic;
             _GLFWjoystick* js;
 
@@ -522,7 +533,13 @@ void _glfwDetectJoystickConnectionWin32(void)
             if (XInputGetCapabilities(index, 0, &xic) != ERROR_SUCCESS)
                 continue;
 
-            js = _glfwAllocJoystick(getDeviceDescription(&xic), 6, 10, 1);
+            // NOTE: Generate a joystick GUID that does NOT match the SDL2 one
+            //       GLFW and SDL2 unfortunately order XInput elements
+            //       differently so mappings for SDL2 will not work on XInput
+            sprintf(guid, "78696e70757400000000000000000000",
+                    xic.SubType & 0xff);
+
+            js = _glfwAllocJoystick(getDeviceDescription(&xic), guid, 6, 10, 1);
             if (!js)
                 continue;
 
