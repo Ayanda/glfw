@@ -681,13 +681,13 @@ You can check whether a joystick is both present and has a gamepad mapping with
 @ref glfwJoystickIsGamepad.
 
 @code
-if (glfwJoystickIsGamepad(jid))
+if (glfwJoystickIsGamepad(GLFW_JOYSTICK_2))
 {
-    add_gamepad(jid);
+    // Use as gamepad
 }
 else
 {
-    add_generic_joystick(jid);
+    // Use as generic joystick
 }
 @endcode
 
@@ -696,7 +696,7 @@ To fetch the gamepad state, call @ref glfwGetGamepadState.
 @code
 GLFWgamepadstate state;
 
-if (glfwGetGamepadState(jid, &state))
+if (glfwGetGamepadState(GLFW_JOYSTICK_3, &state))
 {
     if (state.buttons[GLFW_GAMEPAD_BUTTON_A])
     {
