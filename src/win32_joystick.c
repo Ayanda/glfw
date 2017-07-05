@@ -27,6 +27,7 @@
 
 #include "internal.h"
 
+#include <stdio.h>
 #include <math.h>
 
 #define _GLFW_TYPE_AXIS     0
@@ -436,7 +437,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
     }
 
     // Generate a joystick GUID that matches the SDL2 one
-    sprintf(guid, "%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
+    sprintf(guid, "%08lx%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
             di->guidProduct.Data1, di->guidProduct.Data2, di->guidProduct.Data3,
             di->guidProduct.Data4[0], di->guidProduct.Data4[1],
             di->guidProduct.Data4[2], di->guidProduct.Data4[3],

@@ -481,8 +481,8 @@ struct _GLFWcursor
  */
 struct _GLFWmapelement
 {
-    int8_t          type;
-    int8_t          value;
+    uint8_t         type;
+    uint8_t         value;
 };
 
 /*! @brief Gamepad mapping structure
