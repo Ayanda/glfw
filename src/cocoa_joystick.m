@@ -43,6 +43,8 @@
 typedef struct _GLFWjoyelementNS
 {
     IOHIDElementRef native;
+    uint32_t        usage;
+    int             index;
     long            minimum;
     long            maximum;
 
@@ -67,6 +69,23 @@ static long getElementValue(_GLFWjoystick* js, _GLFWjoyelementNS* element)
     }
 
     return value;
+}
+
+// Comparison function for matching the SDL2 element order
+//
+static CFComparisonResult compareElements(const void* fp, const void* sp, void* user)
+{
+    const _GLFWjoyelementNS* fe = fp;
+    const _GLFWjoyelementNS* se = sp;
+    if (fe->usage < se->usage)
+        return kCFCompareLessThan;
+    if (fe->usage > se->usage)
+        return kCFCompareGreaterThan;
+    if (fe->index < se->index)
+        return kCFCompareLessThan;
+    if (fe->index > se->index)
+        return kCFCompareGreaterThan;
+    return kCFCompareEqualTo;
 }
 
 // Removes the specified joystick
@@ -178,12 +197,13 @@ static void matchCallback(void* context,
         }
 
         CFMutableArrayRef target = NULL;
+        const uint32_t usage = IOHIDElementGetUsage(native);
 
         switch (IOHIDElementGetUsagePage(native))
         {
             case kHIDPage_GenericDesktop:
             {
-                switch (IOHIDElementGetUsage(native))
+                switch (usage)
                 {
                     case kHIDUsage_GD_X:
                     case kHIDUsage_GD_Y:
@@ -215,6 +235,8 @@ static void matchCallback(void* context,
         {
             _GLFWjoyelementNS* element = calloc(1, sizeof(_GLFWjoyelementNS));
             element->native  = native;
+            element->usage   = usage;
+            element->index   = (int) CFArrayGetCount(target);
             element->minimum = IOHIDElementGetLogicalMin(native);
             element->maximum = IOHIDElementGetLogicalMax(native);
             CFArrayAppendValue(target, element);
@@ -222,6 +244,13 @@ static void matchCallback(void* context,
     }
 
     CFRelease(elements);
+
+    CFArraySortValues(axes, CFRangeMake(0, CFArrayGetCount(axes)),
+                      compareElements, NULL);
+    CFArraySortValues(buttons, CFRangeMake(0, CFArrayGetCount(buttons)),
+                      compareElements, NULL);
+    CFArraySortValues(hats, CFRangeMake(0, CFArrayGetCount(hats)),
+                      compareElements, NULL);
 
     js = _glfwAllocJoystick(name,
                             guid,
