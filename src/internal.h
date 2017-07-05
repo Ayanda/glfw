@@ -491,8 +491,8 @@ struct _GLFWmapping
 {
     char            name[128];
     char            guid[33];
-    _GLFWmapelement buttons[14];
-    _GLFWmapelement axes[6];
+    _GLFWmapelement buttons[GLFW_GAMEPAD_BUTTON_COUNT];
+    _GLFWmapelement axes[GLFW_GAMEPAD_AXIS_COUNT];
 };
 
 /*! @brief Joystick structure

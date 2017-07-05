@@ -570,13 +570,14 @@ extern "C" {
 #define GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER    5
 #define GLFW_GAMEPAD_BUTTON_BACK            6
 #define GLFW_GAMEPAD_BUTTON_START           7
-#define GLFW_GAMEPAD_BUTTON_LEFT_THUMB      8
-#define GLFW_GAMEPAD_BUTTON_RIGHT_THUMB     9
-#define GLFW_GAMEPAD_BUTTON_DPAD_UP         10
-#define GLFW_GAMEPAD_BUTTON_DPAD_RIGHT      11
-#define GLFW_GAMEPAD_BUTTON_DPAD_DOWN       12
-#define GLFW_GAMEPAD_BUTTON_DPAD_LEFT       13
-#define GLFW_GAMEPAD_BUTTON_COUNT           14
+#define GLFW_GAMEPAD_BUTTON_GUIDE           8
+#define GLFW_GAMEPAD_BUTTON_LEFT_THUMB      9
+#define GLFW_GAMEPAD_BUTTON_RIGHT_THUMB     10
+#define GLFW_GAMEPAD_BUTTON_DPAD_UP         11
+#define GLFW_GAMEPAD_BUTTON_DPAD_RIGHT      12
+#define GLFW_GAMEPAD_BUTTON_DPAD_DOWN       13
+#define GLFW_GAMEPAD_BUTTON_DPAD_LEFT       14
+#define GLFW_GAMEPAD_BUTTON_COUNT           15
 
 #define GLFW_GAMEPAD_BUTTON_CROSS       GLFW_GAMEPAD_BUTTON_A
 #define GLFW_GAMEPAD_BUTTON_CIRCLE      GLFW_GAMEPAD_BUTTON_B
@@ -1519,11 +1520,11 @@ typedef struct GLFWgamepadstate
     /*! The states of each [gamepad button](@ref gamepad), `GLFW_PRESS` or
      *  `GLFW_RELEASE`.
      */
-    char buttons[14];
+    char buttons[GLFW_GAMEPAD_BUTTON_COUNT];
     /*! The states of each [gamepad axis](@ref gamepad), in the range -1.0 to
      *  1.0 inclusive.
      */
-    float axes[6];
+    float axes[GLFW_GAMEPAD_AXIS_COUNT];
 } GLFWgamepadstate;
 
 
@@ -4409,10 +4410,9 @@ GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun cbfun);
  *  layout of the mapping.  These fields may not all be present and may occur in
  *  any order.
  *
- *  The button fields are `a`, `b`, `c`, `d`, `back`, `start`, `dpup`, `dpright`,
- *  `dpdown`, `dpleft`, `leftshoulder`, `rightshoulder`, `leftstick` and
- *  `rightstick`.  There is also `guide`, which is not supported by GLFW as it
- *  is often hooked by the system or by the Steam client.
+ *  The button fields are `a`, `b`, `c`, `d`, `back`, `start`, `guide`, `dpup`,
+ *  `dpright`, `dpdown`, `dpleft`, `leftshoulder`, `rightshoulder`, `leftstick`
+ *  and `rightstick`.
  *
  *  The axis fields are `leftx`, `lefty`, `rightx`, `righty`, `lefttrigger` and
  *  `righttrigger`.
@@ -4448,15 +4448,48 @@ GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun cbfun);
  */
 GLFWAPI int glfwParseGamepadMappings(const char* string);
 
+/*! @brief Returns the gamepad name for the specified joystick.
+ *
+ *  This function returns the human-readable name of the gamepad from the
+ *  gamepad mapping assigned to the specified joystick.
+ *
+ *  If the specified joystick is not present or does not have a gamepad mapping
+ *  this function will return `NULL` but will not generate an error.  Call @ref
+ *  glfwJoystickIsGamepad to check whether it is present and has a gamepad mapping.
+ *
+ *  @param[in] jid The [joystick](@ref joysticks) to query.
+ *  @return The UTF-8 encoded name of the gamepad, or `NULL` if the
+ *  joystick is not present, does not have a mapping or an
+ *  [error](@ref error_handling) occurred.
+ *
+ *  @pointer_lifetime The returned string is allocated and freed by GLFW.  You
+ *  should not free it yourself.  It is valid until the specified joystick is
+ *  disconnected, additional gamepad mappings are added or the library is
+ *  terminated.
+ *
+ *  @thread_safety This function must only be called from the main thread.
+ *
+ *  @sa @ref joystick_gamepad
+ *  @sa @ref glfwJoystickIsGamepad
+ *
+ *  @since Added in version 3.3.
+ *
+ *  @ingroup input
+ */
+GLFWAPI const char* glfwGetGamepadName(int jid);
+
 /*! @brief Retrieves the state of the specified joystick remapped as a gamepad.
  *
  *  This function retrives the state of the specified joystick remapped to
  *  a standard gamepad.
  *
  *  If the specified joystick is not present this function will return
- *  `GLFW_FALSE` but will not generate an error.  Call @ref glfwJoystickPresent
- *  to check device presence and @ref glfwJoystickIsGamepad to check whether it
- *  has a gamepad mapping.
+ *  `GLFW_FALSE` but will not generate an error.  Call @ref
+ *  glfwJoystickIsGamepad to check whether it is present and has a gamepad
+ *  mapping.
+ *
+ *  The Guide button may not be available for input as it is often hooked by the
+ *  system or the Steam client.
  *
  *  @param[in] jid The [joystick](@ref joysticks) to query.
  *  @return `GLFW_TRUE` if successful, or `GLFW_FALSE` if no joystick is

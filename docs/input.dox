@@ -691,7 +691,15 @@ else
 }
 @endcode
 
-To fetch the gamepad state, call @ref glfwGetGamepadState.
+You can query the human-readable name provided by the gamepad mapping with @ref
+glfwGetGamepadName.  This may or may not be the same as the
+[joystick name](@ref joystick_name).
+
+@code
+const char* name = glfwGetGamepadName(GLFW_JOYSTICK_7);
+@endcode
+
+To retrieve the gamepad state, call @ref glfwGetGamepadState.
 
 @code
 GLFWgamepadstate state;

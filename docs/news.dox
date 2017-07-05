@@ -16,8 +16,9 @@ human-readable description with @ref glfwGetError.
 @subsection news_33_gamepad SDL_GameControllerDB support and gamepad input
 
 GLFW now supports remapping of gamepads and controllers to a 360-like controller
-layout with @ref glfwParseGamepadMappings, @ref glfwJoystickIsGamepad and @ref
-glfwGetGamepadState and @ref GLFWgamepadstate and @ref gamepad.
+layout with @ref glfwParseGamepadMappings, @ref glfwJoystickIsGamepad, @ref
+glfwGetGamepadName and @ref glfwGetGamepadState and @ref GLFWgamepadstate and
+@ref gamepad.
 
 @sa @ref joystick_gamepad
 

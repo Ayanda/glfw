@@ -37,7 +37,7 @@
 // Internal key state used for sticky keys
 #define _GLFW_STICK 3
 
-// Internal constants for gamepad mapping application
+// Internal constants for gamepad mapping source types
 #define _GLFW_JOYSTICK_AXIS     1
 #define _GLFW_JOYSTICK_BUTTON   2
 #define _GLFW_JOYSTICK_HATBIT   3
@@ -76,6 +76,7 @@ static GLFWbool parseMapping(_GLFWmapping* mapping, const char* string)
         { "y",             mapping->buttons + GLFW_GAMEPAD_BUTTON_Y },
         { "back",          mapping->buttons + GLFW_GAMEPAD_BUTTON_BACK },
         { "start",         mapping->buttons + GLFW_GAMEPAD_BUTTON_START },
+        { "guide",         mapping->buttons + GLFW_GAMEPAD_BUTTON_GUIDE },
         { "leftshoulder",  mapping->buttons + GLFW_GAMEPAD_BUTTON_LEFT_BUMPER },
         { "rightshoulder", mapping->buttons + GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER },
         { "leftstick",     mapping->buttons + GLFW_GAMEPAD_BUTTON_LEFT_THUMB },
@@ -958,6 +959,31 @@ GLFWAPI int glfwJoystickIsGamepad(int jid)
     return _glfw.joysticks[jid].mapping != NULL;
 }
 
+GLFWAPI const char* glfwGetGamepadName(int jid)
+{
+    assert(jid >= GLFW_JOYSTICK_1);
+    assert(jid <= GLFW_JOYSTICK_LAST);
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    if (jid < 0 || jid > GLFW_JOYSTICK_LAST)
+    {
+        _glfwInputError(GLFW_INVALID_ENUM, "Invalid joystick ID %i", jid);
+        return NULL;
+    }
+
+    if (!_glfw.joysticks[jid].present)
+        return NULL;
+
+    if (!_glfwPlatformPollJoystick(jid, _GLFW_POLL_PRESENCE))
+        return NULL;
+
+    if (!_glfw.joysticks[jid].mapping)
+        return NULL;
+
+    return _glfw.joysticks[jid].mapping->name;
+}
+
 GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
 {
     int i;
@@ -988,7 +1014,7 @@ GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
     if (!js->mapping)
         return GLFW_FALSE;
 
-    for (i = 0;  i < 14;  i++)
+    for (i = 0;  i < GLFW_GAMEPAD_BUTTON_COUNT;  i++)
     {
         if (js->mapping->buttons[i].type == _GLFW_JOYSTICK_AXIS)
         {
@@ -1006,7 +1032,7 @@ GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
             state->buttons[i] = js->buttons[js->mapping->buttons[i].value];
     }
 
-    for (i = 0;  i < 6;  i++)
+    for (i = 0;  i < GLFW_GAMEPAD_AXIS_COUNT;  i++)
     {
         if (js->mapping->axes[i].type == _GLFW_JOYSTICK_AXIS)
             state->axes[i] = js->axes[js->mapping->axes[i].value];
