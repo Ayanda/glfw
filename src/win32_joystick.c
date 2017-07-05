@@ -533,10 +533,8 @@ void _glfwDetectJoystickConnectionWin32(void)
             if (XInputGetCapabilities(index, 0, &xic) != ERROR_SUCCESS)
                 continue;
 
-            // NOTE: Generate a joystick GUID that does NOT match the SDL2 one
-            //       GLFW and SDL2 unfortunately order XInput elements
-            //       differently so mappings for SDL2 will not work on XInput
-            sprintf(guid, "78696e70757400000000000000000000",
+            // Generate a joystick GUID that matches the SDL2 one
+            sprintf(guid, "78696e707574%02x000000000000000000",
                     xic.SubType & 0xff);
 
             js = _glfwAllocJoystick(getDeviceDescription(&xic), guid, 6, 10, 1);
