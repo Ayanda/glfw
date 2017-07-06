@@ -125,7 +125,7 @@ static void matchCallback(void* context,
     char guid[33];
     CFIndex i;
     CFTypeRef property;
-    uint32_t vendor = 0, product = 0;
+    uint32_t vendor = 0, product = 0, version = 0;
     _GLFWjoystick* js;
     CFMutableArrayRef axes, buttons, hats;
 
@@ -158,18 +158,17 @@ static void matchCallback(void* context,
     if (property)
         CFNumberGetValue(property, kCFNumberSInt32Type, &product);
 
-    // Generate a joystick GUID that matches the SDL2 one
+    property = IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVersionNumberKey));
+    if (property)
+        CFNumberGetValue(property, kCFNumberSInt32Type, &version);
+
+    // Generate a joystick GUID that matches the SDL2 2.0.5+ one
     if (vendor && product)
     {
-        sprintf(guid, "%02x%02x%02x%02x00000000%02x%02x%02x%02x00000000",
-                vendor & 0xff,
-                (vendor >> 8) & 0xff,
-                (vendor >> 16) & 0xff,
-                (vendor >> 24) & 0xff,
-                product & 0xff,
-                (product >> 8) & 0xff,
-                (product >> 16) & 0xff,
-                (product >> 24) & 0xff);
+        sprintf(guid, "03000000%02x%02x0000%02x%02x0000%02x%02x0000",
+                vendor & 0xff, (vendor >> 8) & 0xff,
+                product & 0xff, (product >> 8) & 0xff,
+                version & 0xff, (version >> 8) & 0xff);
     }
     else
     {
@@ -455,5 +454,17 @@ int _glfwPlatformPollJoystick(int jid, int mode)
     }
 
     return js->present;
+}
+
+void _glfwPlatformUpdateGamepadGUID(char* guid)
+{
+    if ((strncmp(guid + 4, "000000000000", 12) == 0) &&
+        (strncmp(guid + 20, "000000000000", 12) == 0))
+    {
+        char original[33];
+        strcpy(original, guid);
+        sprintf(guid, "03000000%.4s0000%.4s000000000000",
+                original, original + 16);
+    }
 }
 

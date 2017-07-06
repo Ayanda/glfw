@@ -4491,6 +4491,10 @@ GLFWAPI const char* glfwGetGamepadName(int jid);
  *  The Guide button may not be available for input as it is often hooked by the
  *  system or the Steam client.
  *
+ *  Not all devices have all the buttons or axes provided by @ref
+ *  GLFWgamepadstate.  Unavailable buttons and axes will always report
+ *  `GLFW_RELEASE` and 1.0 respectively.
+ *
  *  @param[in] jid The [joystick](@ref joysticks) to query.
  *  @return `GLFW_TRUE` if successful, or `GLFW_FALSE` if no joystick is
  *  connected, it has no gamepad mapping or an [error](@ref error_handling)

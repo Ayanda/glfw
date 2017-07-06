@@ -156,9 +156,9 @@ static const char* getDeviceDescription(const XINPUT_CAPABILITIES* xic)
         case XINPUT_DEVSUBTYPE_GAMEPAD:
         {
             if (xic->Flags & XINPUT_CAPS_WIRELESS)
-                return "Wireless Xbox 360 Controller";
+                return "Wireless Xbox Controller";
             else
-                return "Xbox 360 Controller";
+                return "Xbox Controller";
         }
     }
 
@@ -436,13 +436,22 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
         return DIENUM_STOP;
     }
 
-    // Generate a joystick GUID that matches the SDL2 one
-    sprintf(guid, "%08lx%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
-            di->guidProduct.Data1, di->guidProduct.Data2, di->guidProduct.Data3,
-            di->guidProduct.Data4[0], di->guidProduct.Data4[1],
-            di->guidProduct.Data4[2], di->guidProduct.Data4[3],
-            di->guidProduct.Data4[4], di->guidProduct.Data4[5],
-            di->guidProduct.Data4[6], di->guidProduct.Data4[7]);
+    // Generate a joystick GUID that matches the SDL2 2.0.5+ one
+    if (memcmp(&di->guidProduct.Data4[2], "PIDVID", 6) == 0)
+    {
+        sprintf(guid, "03000000%02x%02x0000%02x%02x000000000000",
+                di->guidProduct.Data1 & 0xff,
+                (di->guidProduct.Data1 >> 8) & 0xff,
+                (di->guidProduct.Data1 >> 16) & 0xff,
+                (di->guidProduct.Data1 >> 24) & 0xff);
+    }
+    else
+    {
+        sprintf(guid, "05000000%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x00",
+                name[0], name[1], name[2], name[3],
+                name[4], name[5], name[6], name[7],
+                name[8], name[9], name[10]);
+    }
 
     js = _glfwAllocJoystick(name,
                             guid,
@@ -741,5 +750,16 @@ int _glfwPlatformPollJoystick(int jid, int mode)
     }
 
     return GLFW_TRUE;
+}
+
+void _glfwPlatformUpdateGamepadGUID(char* guid)
+{
+    if (strcmp(guid + 20, "504944564944") == 0)
+    {
+        char original[33];
+        strcpy(original, guid);
+        sprintf(guid, "03000000%.4s0000%.4s000000000000",
+                original, original + 4);
+    }
 }
 
