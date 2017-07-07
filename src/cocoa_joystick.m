@@ -71,7 +71,7 @@ static long getElementValue(_GLFWjoystick* js, _GLFWjoyelementNS* element)
     return value;
 }
 
-// Comparison function for matching the SDL2 element order
+// Comparison function for matching the SDL element order
 //
 static CFComparisonResult compareElements(const void* fp, const void* sp, void* user)
 {
@@ -162,7 +162,7 @@ static void matchCallback(void* context,
     if (property)
         CFNumberGetValue(property, kCFNumberSInt32Type, &version);
 
-    // Generate a joystick GUID that matches the SDL2 2.0.5+ one
+    // Generate a joystick GUID that matches the SDL 2.0.5+ one
     if (vendor && product)
     {
         sprintf(guid, "03000000%02x%02x0000%02x%02x0000%02x%02x0000",

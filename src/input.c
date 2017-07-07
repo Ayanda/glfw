@@ -884,7 +884,7 @@ GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun cbfun)
     return cbfun;
 }
 
-GLFWAPI int glfwParseGamepadMappings(const char* string)
+GLFWAPI int glfwUpdateGamepadMappings(const char* string)
 {
     int jid;
     const char* c = string;
@@ -1019,7 +1019,7 @@ GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
     if (!js->mapping)
         return GLFW_FALSE;
 
-    for (i = 0;  i < GLFW_GAMEPAD_BUTTON_COUNT;  i++)
+    for (i = 0;  i <= GLFW_GAMEPAD_BUTTON_LAST;  i++)
     {
         if (js->mapping->buttons[i].type == _GLFW_JOYSTICK_AXIS)
         {
@@ -1037,7 +1037,7 @@ GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
             state->buttons[i] = js->buttons[js->mapping->buttons[i].value];
     }
 
-    for (i = 0;  i < GLFW_GAMEPAD_AXIS_COUNT;  i++)
+    for (i = 0;  i <= GLFW_GAMEPAD_AXIS_LAST;  i++)
     {
         if (js->mapping->axes[i].type == _GLFW_JOYSTICK_AXIS)
             state->axes[i] = js->axes[js->mapping->axes[i].value];

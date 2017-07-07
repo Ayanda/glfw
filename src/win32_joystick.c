@@ -258,7 +258,7 @@ static void closeJoystick(_GLFWjoystick* js)
 }
 
 // DirectInput device object enumeration callback
-// Insights gleaned from SDL2
+// Insights gleaned from SDL
 //
 static BOOL CALLBACK deviceObjectCallback(const DIDEVICEOBJECTINSTANCEW* doi,
                                           void* user)
@@ -436,7 +436,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
         return DIENUM_STOP;
     }
 
-    // Generate a joystick GUID that matches the SDL2 2.0.5+ one
+    // Generate a joystick GUID that matches the SDL 2.0.5+ one
     if (memcmp(&di->guidProduct.Data4[2], "PIDVID", 6) == 0)
     {
         sprintf(guid, "03000000%02x%02x0000%02x%02x000000000000",
@@ -543,7 +543,7 @@ void _glfwDetectJoystickConnectionWin32(void)
             if (XInputGetCapabilities(index, 0, &xic) != ERROR_SUCCESS)
                 continue;
 
-            // Generate a joystick GUID that matches the SDL2 one
+            // Generate a joystick GUID that matches the SDL 2.0.5+ one
             sprintf(guid, "78696e707574%02x000000000000000000",
                     xic.SubType & 0xff);
 

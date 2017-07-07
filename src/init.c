@@ -215,7 +215,7 @@ GLFWAPI int glfwInit(void)
     _glfw.timer.offset = _glfwPlatformGetTimerValue();
 
     glfwDefaultWindowHints();
-    glfwParseGamepadMappings(_glfwDefaultMappings);
+    glfwUpdateGamepadMappings(_glfwDefaultMappings);
 
     return GLFW_TRUE;
 }

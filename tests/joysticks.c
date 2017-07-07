@@ -259,7 +259,7 @@ int main(void)
                 if (glfwGetGamepadState(joysticks[i], &state))
                 {
                     int hat = 0;
-                    const char* names[GLFW_GAMEPAD_BUTTON_COUNT - 4] =
+                    const char* names[GLFW_GAMEPAD_BUTTON_LAST + 1 - 4] =
                     {
                         "A", "B", "X", "Y",
                         "LB", "RB",
@@ -271,12 +271,12 @@ int main(void)
 
                     nk_layout_row_dynamic(nk, 30, 2);
 
-                    for (j = 0;  j < GLFW_GAMEPAD_AXIS_COUNT;  j++)
+                    for (j = 0;  j <= GLFW_GAMEPAD_AXIS_LAST;  j++)
                         nk_slide_float(nk, -1.f, state.axes[j], 1.f, 0.1f);
 
-                    nk_layout_row_dynamic(nk, 30, GLFW_GAMEPAD_BUTTON_COUNT - 4);
+                    nk_layout_row_dynamic(nk, 30, GLFW_GAMEPAD_BUTTON_LAST + 1 - 4);
 
-                    for (j = 0;  j < GLFW_GAMEPAD_BUTTON_COUNT - 4;  j++)
+                    for (j = 0;  j <= GLFW_GAMEPAD_BUTTON_LAST - 4;  j++)
                         nk_select_label(nk, names[j], NK_TEXT_CENTERED, state.buttons[j]);
 
                     if (state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP])
