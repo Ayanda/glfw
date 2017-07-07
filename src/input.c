@@ -62,7 +62,7 @@ static _GLFWmapping* findMapping(const char* guid)
 static GLFWbool parseMapping(_GLFWmapping* mapping, const char* string)
 {
     const char* c = string;
-    size_t length;
+    size_t i, length;
     struct
     {
         const char* name;
@@ -115,8 +115,6 @@ static GLFWbool parseMapping(_GLFWmapping* mapping, const char* string)
 
     while (*c)
     {
-        int i;
-
         for (i = 0;  i < sizeof(fields) / sizeof(fields[0]);  i++)
         {
             length = strlen(fields[i].name);
@@ -157,6 +155,12 @@ static GLFWbool parseMapping(_GLFWmapping* mapping, const char* string)
 
         c += strcspn(c, ",");
         c += strspn(c, ",");
+    }
+
+    for (i = 0;  i < 32;  i++)
+    {
+        if (mapping->guid[i] >= 'A' && mapping->guid[i] <= 'F')
+            mapping->guid[i] += 'a' - 'A';
     }
 
     _glfwPlatformUpdateGamepadGUID(mapping->guid);
