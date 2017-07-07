@@ -663,10 +663,10 @@ To solve this problem the SDL community crowdsourced the
 [SDL_GameControllerDB](https://github.com/gabomdq/SDL_GameControllerDB) project,
 a database of mappings from many different devices to an Xbox-like gamepad.
 
-GLFW includes all gamepad mappings in this database at the time of release.  See
-@ref gamepad_mapping for how to update this at runtime.  Mappings will be
-assigned to joysticks automatically any time a joystick is connected or the
-mappings are updated.
+GLFW supports this mapping format and contains a copy of the mappings
+available at the time of release.  See @ref gamepad_mapping for how to update
+this at runtime.  Mappings will be assigned to joysticks automatically any time
+a joystick is connected or the mappings are updated.
 
 You can check whether a joystick is both present and has a gamepad mapping with
 @ref glfwJoystickIsGamepad.
